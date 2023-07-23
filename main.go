@@ -61,12 +61,15 @@ func init() {
 				log.Println(err)
 				break
 			}
-			puid, err := authenticator.GetPUID()
-			if err != nil {
-				break
-			}
-			os.Setenv("PUID", puid)
-			println(puid)
+			// puid, err := authenticator.GetPUID()
+			// if err != nil {
+			// 	break
+			// }
+			// os.Setenv("PUID", puid)
+			// println(puid)
+			AccessToken := authenticator.GetAccessToken()
+			os.Setenv("ACCESS_TOKENS", AccessToken)
+
 			time.Sleep(24 * time.Hour * 7)
 		}
 	}()
@@ -82,9 +85,35 @@ func init() {
 	if PORT == "" {
 		PORT = "8080"
 	}
-	checkProxy()
-	readAccounts()
-	scheduleToken()
+
+	accessToken := os.Getenv("ACCESS_TOKENS")
+	if accessToken != "" {
+		accessTokens := strings.Split(accessToken, ",")
+		ACCESS_TOKENS = tokens.NewAccessToken(accessTokens)
+	}
+	// Check if access_tokens.json exists
+	if _, err := os.Stat("access_tokens.json"); os.IsNotExist(err) {
+		// Create the file
+		file, err := os.Create("access_tokens.json")
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+	} else {
+		// Load the tokens
+		file, err := os.Open("access_tokens.json")
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+		decoder := json.NewDecoder(file)
+		var token_list []string
+		err = decoder.Decode(&token_list)
+		if err != nil {
+			return
+		}
+		ACCESS_TOKENS = tokens.NewAccessToken(token_list)
+	}
 }
 func main() {
 	router := gin.Default()
@@ -108,6 +137,7 @@ func main() {
 	/// Public routes
 	router.OPTIONS("/v1/chat/completions", optionsHandler)
 	router.POST("/v1/chat/completions", nightmare)
+	router.POST("/v1/chat/conversations", nightmare2)
 	router.GET("/v1/engines", Authorization, engines_handler)
 	router.GET("/v1/models", Authorization, engines_handler)
 	endless.ListenAndServe(HOST+":"+PORT, router)
