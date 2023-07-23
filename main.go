@@ -12,6 +12,7 @@ import (
 	"github.com/acheong08/endless"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"encoding/json"
 )
 
 var HOST string
