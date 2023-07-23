@@ -136,31 +136,31 @@ func nightmare(c *gin.Context) {
 		return
 	}
 	var full_response string
-	for i := 3; i > 0; i-- {
+	// for i := 3; i > 0; i-- {
 		var continue_info *chatgpt.ContinueInfo
 		var response_part string
 		response_part, continue_info = chatgpt.Handler(c, response, token, translated_request, original_request.Stream)
 		full_response += response_part
 		if continue_info == nil {
-			break
+			print("continue_info=nil")
 		}
-		println("Continuing conversation")
-		translated_request.Messages = nil
-		translated_request.Action = "continue"
-		translated_request.ConversationID = continue_info.ConversationID
-		translated_request.ParentMessageID = continue_info.ParentID
-		response, err = chatgpt.POSTconversation(translated_request, token, proxy_url)
-		if err != nil {
-			c.JSON(500, gin.H{
-				"error": "error sending request",
-			})
-			return
-		}
-		defer response.Body.Close()
-		if chatgpt.Handle_request_error(c, response) {
-			return
-		}
-	}
+	// 	println("Continuing conversation")
+	// 	translated_request.Messages = nil
+	// 	translated_request.Action = "continue"
+	// 	translated_request.ConversationID = continue_info.ConversationID
+	// 	translated_request.ParentMessageID = continue_info.ParentID
+	// 	response, err = chatgpt.POSTconversation(translated_request, token, proxy_url)
+	// 	if err != nil {
+	// 		c.JSON(500, gin.H{
+	// 			"error": "error sending request",
+	// 		})
+	// 		return
+	// 	}
+	// 	defer response.Body.Close()
+	// 	if chatgpt.Handle_request_error(c, response) {
+	// 		return
+	// 	}
+	// }
 	if !original_request.Stream {
 		c.JSON(200, official_types.NewChatCompletion(full_response))
 	} else {
@@ -181,7 +181,14 @@ func nightmare2(c *gin.Context) {
 			"code":    err.Error(),
 		}})
 	}
-
+	var proxy_url string
+	if len(proxies) == 0 {
+		proxy_url = ""
+	} else {
+		proxy_url = proxies[0]
+		// Push used proxy to the back of the list
+		proxies = append(proxies[1:], proxies[0])
+	}
 	authHeader := c.GetHeader("Authorization")
 	token := ACCESS_TOKENS.GetToken()
 	if authHeader != "" {
@@ -197,7 +204,7 @@ func nightmare2(c *gin.Context) {
 	translated_request.ParentMessageID = uuid.NewString()
 	translated_request.Model = "text-davinci-002-render-sha"
 	translated_request.HistoryAndTrainingDisabled = !(os.Getenv("ENABLE_HISTORY") == "")
-	response, err := chatgpt.POSTconversation(translated_request, token)
+	response, err := chatgpt.POSTconversation(translated_request, token,proxy_url)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": "error sending request",
