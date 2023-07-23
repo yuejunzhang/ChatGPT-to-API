@@ -5,10 +5,12 @@ import (
 	chatgpt "freechatgpt/internal/chatgpt"
 	"freechatgpt/internal/tokens"
 	official_types "freechatgpt/typings/official"
+	chatgpt_types "freechatgpt/typings/chatgpt"
 	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func openaiHandler(c *gin.Context) {
