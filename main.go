@@ -89,7 +89,7 @@ func init() {
 	accessToken := os.Getenv("ACCESS_TOKENS")
 	if accessToken != "" {
 		accessTokens := strings.Split(accessToken, ",")
-		ACCESS_TOKENS = tokens.NewAccessToken(accessTokens)
+		ACCESS_TOKENS = tokens.NewAccessToken(accessTokens,false)
 	}
 	// Check if access_tokens.json exists
 	if _, err := os.Stat("access_tokens.json"); os.IsNotExist(err) {
@@ -112,7 +112,7 @@ func init() {
 		if err != nil {
 			return
 		}
-		ACCESS_TOKENS = tokens.NewAccessToken(token_list)
+		ACCESS_TOKENS = tokens.NewAccessToken(token_list,false)
 	}
 }
 func main() {
