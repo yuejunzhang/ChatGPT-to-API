@@ -167,6 +167,60 @@ func nightmare(c *gin.Context) {
 
 }
 
+
+func nightmare2(c *gin.Context) {
+	var translated_request chatgpt_types.ChatGPTRequest
+	err := c.BindJSON(&translated_request)
+	if err != nil {
+		c.JSON(400, gin.H{"error": gin.H{
+			"message": "Request must be proper JSON",
+			"type":    "invalid_request_error",
+			"param":   nil,
+			"code":    err.Error(),
+		}})
+	}
+
+	authHeader := c.GetHeader("Authorization")
+	token := ACCESS_TOKENS.GetToken()
+	if authHeader != "" {
+		customAccessToken := strings.Replace(authHeader, "Bearer ", "", 1)
+		// Check if customAccessToken starts with sk-
+		if strings.HasPrefix(customAccessToken, "eyJhbGciOiJSUzI1NiI") {
+			token = customAccessToken
+		}
+	}
+	// Convert the chat request to a ChatGPT request
+	// translated_request := chatgpt_request_converter.ConvertAPIRequest(original_request)
+	//强行添加token
+	translated_request.ParentMessageID = uuid.NewString()
+	translated_request.Model = "text-davinci-002-render-sha"
+	translated_request.HistoryAndTrainingDisabled = !(os.Getenv("ENABLE_HISTORY") == "")
+	response, err := chatgpt.POSTconversation(translated_request, token)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": "error sending request",
+		})
+		return
+	}
+	defer response.Body.Close()
+	if chatgpt.Handle_request_error(c, response) {
+		return
+	}
+	var full_response string
+	// for i := 3; i > 0; i-- {
+	var continue_info *chatgpt.ContinueInfo
+	var response_part string
+	response_part, continue_info = chatgpt.Handler(c, response, token, translated_request, true)
+	full_response += response_part
+	if continue_info == nil {
+		// break
+		print("continue_info=nil")
+	}
+
+
+	c.String(200, "data: [DONE]\n\n")
+
+}
 func engines_handler(c *gin.Context) {
 	resp, status, err := chatgpt.GETengines()
 	if err != nil {
