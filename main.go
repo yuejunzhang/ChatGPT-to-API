@@ -141,5 +141,6 @@ func main() {
 	router.POST("/v1/chat/conversations", nightmare2)
 	router.GET("/v1/engines", Authorization, engines_handler)
 	router.GET("/v1/models", Authorization, engines_handler)
-	endless.ListenAndServe(HOST+":"+PORT, router)
+	// endless.ListenAndServe(HOST+":"+PORT, router)
+	router.Run(HOST + ":" + PORT)
 }
