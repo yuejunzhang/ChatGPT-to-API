@@ -2,18 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "main.go", // 指定构建入口文件
-      "use": "@vercel/go" // 使用 Go 构建器
+      "src": "main.go", 
+      "use": "@vercel/go" 
     }
   ],
   "routes": [
     {
-      "src": "/admin(.*)", // 匹配以 /admin 开头的路径
-      "dest": "main.go" // 路由目标为构建入口文件
+      "src": "/admin(.*)",
+      "dest": "main.go" 
     },
     {
-      "src": "/v1/(.*)", // 匹配以 /v1/ 开头的路径
-      "dest": "main.go" // 路由目标为构建入口文件
+      "src": "/v1/(.*)",
+      "dest": "main.go" 
     }
   ]
 }
