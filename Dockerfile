@@ -1,5 +1,5 @@
 
-FROM golang:1.20.3-alpine as builder
+FROM golang:alpine as builder
 
 WORKDIR /app 
 
@@ -9,7 +9,7 @@ RUN go mod download
 COPY . .
 RUN go build -o /app/ChatGPT-To-API .
 
-FROM scratch
+FROM alpine:latest
 
 WORKDIR /app
 
