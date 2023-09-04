@@ -33,5 +33,5 @@ COPY --from=builder /app/ChatGPT-To-API /app/ChatGPT-To-API
 EXPOSE 8080
 
 # Start the application
-# CMD [ "./ChatGPT-To-API" ]
+CMD [ "./ChatGPT-To-API" ]
 ENTRYPOINT ./ChatGPT-To-API main.go
