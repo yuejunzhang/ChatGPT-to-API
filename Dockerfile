@@ -34,4 +34,4 @@ EXPOSE 8080
 
 # Start the application
 CMD [ "./ChatGPT-To-API" ]
-ENTRYPOINT ./ChatGPT-To-API main.go
+# ENTRYPOINT ./ChatGPT-To-API main.go
