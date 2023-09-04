@@ -6,7 +6,7 @@ FROM golang:1.20.3-alpine as builder
 ENV CGO_ENABLED=0
 
 # Set the working directory
-WORKDIR github.com/zhangyuejun/ChatGPT-to-API
+WORKDIR /app
 
 # Copy the Go Modules manifests (go.mod and go.sum files)
 COPY go.mod go.sum ./
@@ -18,16 +18,16 @@ RUN go mod download
 COPY . .
 
 # Build the Go application and output the binary to /app/ChatGPT-Proxy-V4
-RUN go build -o github.com/zhangyuejun/ChatGPT-to-API
+RUN go build -o /app/ChatGPT-To-API .
 
 # Use a scratch image as the final distroless image
 FROM scratch
 
 # Set the working directory
-WORKDIR github.com/zhangyuejun/ChatGPT-to-API
+WORKDIR /app
 
 # Copy the built Go binary from the builder stage
-COPY --from= github.com/zhangyuejun/ChatGPT-to-API ./
+COPY --from=builder /app/ChatGPT-To-API /app/ChatGPT-To-API
 
 # Expose the port where the application is running
 EXPOSE 8080
